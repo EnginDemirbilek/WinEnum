@@ -1,4 +1,4 @@
-# WinEnum
+# WinEnum (BETA)
 Powershell script/Personal Project to automate finding privilege escalation vectors in windows environments.
 
 
