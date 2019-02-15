@@ -87,7 +87,7 @@ Check alwaysinstallelevated key to local privilege escalation.
 PS C:\Users\Administrator\Desktop> Check-AlwaysInstallElevated
 Checking AlwaysInstallElevated Registery
 [+]! Host may be vulnerable to AlwaysInstallElevated Exploitation, checking registery keys for grant
-[+][+][+] Vulnerability granted !!! Check: https://github.com/EnginDemirbilek/WinEnum/AlwaysInstallElevated for exploitation.
+[+][+][+] Vulnerability granted !!! Check: https://pentestlab.blog/2017/02/28/always-install-elevated/ for sample exploitation.
 ```
 
 
@@ -97,7 +97,7 @@ Check unqoted service paths to local privilege escalation.
 ```
 PS C:\Users\hyaloid\Desktop> Check-UnquotedServicePath
 Checking unquoted service paths
-[+][+]Vulnerable services found, check http://blabla for "possible" exploitation
+[+][+]Vulnerable services found, check https://pentestlab.blog/2017/03/09/unquoted-service-path/ for "possible" exploitation
 
 state   name                       pathname                                                                        startmode
 -----   ----                       --------                                                                        ---------
