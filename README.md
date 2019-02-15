@@ -162,7 +162,7 @@ BUILTIN\Users     ReadAndExecute, Synchronize
 
 ```
 
-Thats it for now. Many is coming ..
+Thats it for now. Many is coming ...
 
 
 
