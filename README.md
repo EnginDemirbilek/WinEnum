@@ -149,6 +149,8 @@ Everyone                                                                        
 ```
 
 **Check Permissions of Executables Manually (In case automation can't detect all of them)**
+
+
 Only for BUILTIN\Users and everyone.
 ```
 PS C:\Users\hyaloid\Desktop> Check-Permissions "C:\Program Files (x86)\ASUS\ATK Package\ATK Hotkey\AsLdrSrv.exe "
