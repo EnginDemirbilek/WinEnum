@@ -1,9 +1,9 @@
-﻿<#
+<#
 Powershell script to detect privilege escalate vectors in windows environments.
 Author: Engin Demirbilek
 Date: */*/*
 Twitter: @hyal0id
-Github Repository: 
+Github Repository: https://github.com/EnginDemirbilek/WinEnum/
 #>
 
  
