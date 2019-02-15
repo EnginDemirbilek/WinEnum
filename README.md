@@ -59,7 +59,7 @@ Domain Info
 ```
 
 **Check HotFix Updates**
-Check hotfix update for kernel exploitation (i'm still working an exploit suggester module)
+Check hotfix update for kernel exploitation (i'm still working on an exploit suggester module)
 ```
 PS C:\Users\hyaloid\Desktop> Check-SecurityUpdates
 Security Updates
