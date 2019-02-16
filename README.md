@@ -7,6 +7,7 @@ Powershell script/Personal Project to automate finding privilege escalation vect
 
 First import it as module.
 ```
+C:\Users\Hyaloid\Desktop> powershell -ExecutionPolicy Bypass
 PS C:\Users\Hyaloid\Desktop> Import-Module winenum.ps1
 ```
 
@@ -161,6 +162,19 @@ BUILTIN\Users     ReadAndExecute, Synchronize
 
 
 ```
+**Check General Password Folders**
+
+
+Check well known folder that contains account passwords.
+```
+PS C:\Users\hyaloid> Check-GeneralPasswordFolders
+
+
+Checking Password Folders ...
+[+]Password folder seems exist, check: c:\sysprep\sysprep.xml
+```
+
+
 
 Thats it for now. Many is coming ...
 
