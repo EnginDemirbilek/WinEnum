@@ -33,7 +33,7 @@ General Info
 
 ```
 PS C:\Users\Hyaloid\Desktop> Check-isVirtual
-[+] Machine Type= Virtual:  VMware, Inc.PS C:\Users
+[+] Machine Type= Virtual:  VMware, Inc.PS
 ```
 
 **Check Local Admins**
