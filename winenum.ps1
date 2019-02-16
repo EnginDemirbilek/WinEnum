@@ -1,9 +1,9 @@
-<#
+﻿<#
 Powershell script to detect privilege escalate vectors in windows environments.
 Author: Engin Demirbilek
 Date: */*/*
 Twitter: @hyal0id
-Github Repository: https://github.com/EnginDemirbilek/WinEnum/
+Github Repository: 
 #>
 
  
@@ -171,6 +171,33 @@ if($services){
 
 }
 
+}
+
+
+function Check-GeneralPasswordFolders{
+$isFound = 0
+Write-Host `n
+Write-Host -BackgroundColor Red "Checking Password Folders ..."
+$paths = @("c:\sysprep.inf","c:\sysprep\sysprep.xml", "%WINDIR%\Panther\Unattend\Unattended.xml","%WINDIR%\Panther\Unattended.xml")
+$paths | ForEach-Object{
+if(Test-Path $_)
+{
+$isFound = 1
+Write-Host -NoNewline -ForegroundColor Yellow "[+]Password folder seems exist, check: "
+Write-Host -ForegroundColor Green $_
+}
+
+
+
+}
+
+if(!$isfound)
+{
+Write-Host -ForegroundColor Yellow "No password folder found"
+}
+
+
+Write-Host `n
 }
 
 
