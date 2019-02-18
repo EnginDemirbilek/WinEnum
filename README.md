@@ -174,7 +174,7 @@ Checking Password Folders ...
 [+]Password folder seems exist, check: c:\sysprep\sysprep.xml
 ```
 **Check Scheduled tasks**
-Check executable of scheduled tasks which are not located in \Microsoft\Windows\
+Check executable of scheduled tasks which are not located in \Microsoft\Windows\ and not created by your current user.
 
 ```
 PS C:\Users\hyaloid> Check-ScheduledTaskExecutablePermissions
