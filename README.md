@@ -173,8 +173,21 @@ PS C:\Users\hyaloid> Check-GeneralPasswordFolders
 Checking Password Folders ...
 [+]Password folder seems exist, check: c:\sysprep\sysprep.xml
 ```
+**Check Scheduled tasks**
+Check executable of scheduled tasks which are not located in \Microsoft\Windows\
 
+```
+PS C:\Users\hyaloid> Check-ScheduledTaskExecutablePermissions
 
+Name                           Value                                                                                                                                                                        
+----                           -----                                                                                                                                                                        
+Name                           ASUS Smart Gesture Launcher                                                                                                                                                  
+Interval                       {$null, $null}                                                                                                                                                               
+Executable                     C:\Program Files (x86)\ASUS\ASUS Smart Gesture\AsTPCenter\x64\AsusTPLauncher.exe                                                                                             
+ExecutablePermissions          {@{IdentityReference=NT AUTHORITY\SYSTEM; FileSystemRights=FullControl}, @{IdentityReference=BUILTIN\Users; FileSystemRights=ReadAndExecute, Synchronize}}                   
+taskOwner                                                                                                                                                                                                   
+
+```
 
 Thats it for now. Many is coming ...
 
