@@ -1,16 +1,16 @@
-<#
+﻿<#
 Powershell script to detect privilege escalate vectors in windows environments.
 Author: Engin Demirbilek
 Date: */*/*
 Twitter: @hyal0id
-Github Repository: https://github.com/EnginDemirbilek/WinEnum/
+Github Repository: https://github.com/EnginDemirbilek/WinEnum
 #>
 
  
 
 function Check-Permissions($folder){
-
- (Get-Acl $folder).Access |select IdentityReference, FileSystemRights | where-object {$_.IdentityReference -match "BUILTIN\\Users" -or $_.IdentityReference -match "everyone"} -erroraction 'silentlycontinue'
+$user = $env:username
+ (Get-Acl $folder -ErrorAction SilentlyContinue).Access |select IdentityReference, FileSystemRights | where-object {$_.IdentityReference -match "BUILTIN\\Users" -or $_.IdentityReference -match "everyone" -or $_.IdentityReference -match $user}
 
 }
 
@@ -74,7 +74,10 @@ if((Get-WmiObject -Class Win32_ComputerSystem).PartOfDomain){
 Write-Host -NoNewline -ForegroundColor Green "[+] Domain= "
 Write-Host -ForegroundColor Yellow (Get-WmiObject -Class Win32_ComputerSystem).Domain
 Write-Host -NoNewline -ForegroundColor Green "[+] Domain Admins= "
-net group /DOMAIN "domain admins" | where {$_ -AND $_ -notmatch "command completed successfully" -AND $_ -notmatch "---" -AND $_ -notmatch "Comment" -AND $_ -notmatch "Alias" -AND $_ -notmatch "Members" -AND $_ -notmatch "Group name" -AND $_ -notmatch "Domain admins"}
+net group /DOMAIN "domain admins" | where {$_ -AND $_ -notmatch "command completed successfully" -AND $_ -notmatch "---" -AND $_ -notmatch "Comment" -AND $_ -notmatch "Alias" -AND $_ -notmatch "Members" -AND $_ -notmatch "Group name" -AND $_ -notmatch "Domain admins" -AND $_ -notmatch "The request"}
+Write-Host -NoNewline -ForegroundColor Green "[+] DC (via LOGONSERVER variable)= "
+$env:LOGONSERVER
+
 }
 else{
 Write-Host -ForegroundColor Yellow "Host is not a member of a domain"
@@ -200,6 +203,31 @@ Write-Host -ForegroundColor Yellow "No password folder found"
 Write-Host `n
 }
 
+
+Function Check-ScheduledTaskExecutablePermissions
+{
+
+$tasks_temp = Get-ScheduledTask | Select * | Where {$_.TaskPath -notmatch "\\Microsoft\\Windows\\" -AND $_.TaskPath -notmatch "\\System32\\" -AND $_.Principal.UserID -notmatch "$env:username"} | Format-table -Property state,actions,date,taskname,taskpath,@{name="User"; Expression={$_.Principal.UserId}}
+
+
+Get-ScheduledTask | Select * | Where {$_.TaskPath -notmatch "\\Microsoft\\Windows\\"  -AND $_.Principal.UserID -notmatch "$env:username"} |  ForEach-Object{
+
+$name = $_.taskname
+$owner =  $_.Principal.UserID
+$interval =  (Get-ScheduledTask -Taskname $name).Triggers.Repetition.Interval
+$executable = (Get-ScheduledTask -Taskname $name).Actions.Execute
+$executable = $executable.Replace("`"","")
+$executablePermissions = Check-Permissions $executable
+$hash = [ordered]@{Name=$name; Interval=$interval; Executable=$executable; ExecutablePermissions=$executablePermissions; taskOwner=$owner}
+$hash
+Write-Host `n
+
+ 
+
+
+}
+
+}
 
 
 
