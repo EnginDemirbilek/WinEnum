@@ -222,20 +222,7 @@ $hash = [ordered]@{Name=$name; Interval=$interval; Executable=$executable; Execu
 $hash
 Write-Host `n
 
- 
-
 
 }
 
 }
-
-
-
-
-
-
-
-
-
-
-
