@@ -162,11 +162,11 @@ Write `n
 
 function Check-ServiceExecutablePermissions{
 
-$Global:ServiceTable = New-Object System.Data.DataTable | Out-Null
+$Global:ServiceTable = New-Object System.Data.DataTable
 
-$Global:ServiceTable.Columns.Add("ServiceName")
-$Global:ServiceTable.Columns.Add("Executable")
-$Global:ServiceTable.Columns.Add("ExecutablePermissions")
+$Global:ServiceTable.Columns.Add("ServiceName")| Out-Null
+$Global:ServiceTable.Columns.Add("Executable")| Out-Null
+$Global:ServiceTable.Columns.Add("ExecutablePermissions")| Out-Null
 
 
 Write-Host -BackgroundColor Red "Checking permissions of service executables."
