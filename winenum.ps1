@@ -6,38 +6,45 @@ Twitter: @hyal0id
 Github Repository: https://github.com/EnginDemirbilek/WinEnum
 #>
 
+$Global:ServiceTable = $null
+$Global:ScheduledTasksTable = $null
+$Global:GeneralInfoTable = $null
+
  
 
 function Check-Permissions($folder){
 $user = $env:username
- (Get-Acl $folder -ErrorAction SilentlyContinue).Access |select IdentityReference, FileSystemRights | where-object {$_.IdentityReference -match "BUILTIN\\Users" -or $_.IdentityReference -match "everyone" -or $_.IdentityReference -match $user}
-
+ $perm = (Get-Acl $folder -ErrorAction SilentlyContinue).Access |select IdentityReference, FileSystemRights | where-object {$_.IdentityReference -match "BUILTIN\\Users" -or $_.IdentityReference -match "everyone" -or $_.IdentityReference -match $user}
+ return $perm
 }
 
 
 
 function Check-General{
+
 Write-Host `n
+$Global:GeneralInfoTable = New-Object System.Data.DataTable
+$Global:GeneralInfoTable.Columns.Add("OS") |out-null
+$Global:GeneralInfoTable.Columns.Add("Processors")|out-null
+$Global:GeneralInfoTable.Columns.Add("Architecture")|out-null
+$Global:GeneralInfoTable.Columns.Add("CurrentUser")|out-null
+$Global:GeneralInfoTable.Columns.Add("ComputerName")|out-null
+$Global:GeneralInfoTable.Columns.Add("MachineType")|out-null
+
+
 Write-Host -BackgroundColor red "General Info"
 
+$arc = $env:PROCESSOR_ARCHITECTURE
 $fullos = (Get-WmiObject win32_operatingsystem).name
 $rawos = $fullos.Split(" ")
-Write-Host -NoNewline -ForegroundColor Green "[+] Operating System= "
-Write-Host -ForegroundColor Yellow $rawos[1] $rawos[2] $rawos[3]
-
+$os = $rawos[1] + " " +$rawos[2]+ " "+$rawos[3]
 $processor = (Get-WmiObject win32_processor).numberoflogicalprocessors
-Write-Host -NoNewline -ForegroundColor Green "[+] Number Of Processors= "
-Write-Host -ForegroundColor Yellow $processor
 $user = $env:username
-Write-Host -NoNewline -ForegroundColor Green "[+] Current User= "
-Write-Host -ForegroundColor Yellow  $user
-Write-Host -NoNewline -ForegroundColor Green "[+] Computer Name= "
-Write-Host -ForegroundColor Yellow  $env:COMPUTERNAME
- 
-Write-Host -ForegroundColor Green "[+] IP Addresses of Machine " 
-((Get-WmiObject Win32_NetworkAdapterConfiguration).IpAddress) | Where-Object {$_ -notmatch ":"}
+$computername= $env:COMPUTERNAME
+$machine_type = Check-IsVirtual
 
-Write-Host `n
+$Global:GeneralInfoTable.Rows.Add($os,$processor,$arc,$user,$computername,$machine_type)
+
 }
 
 function Check-LocalAdmins{
@@ -49,20 +56,23 @@ net localgroup "administrators" | where {$_ -notmatch "Alias" -and $_ -notmatch 
 
 Write-Host `n
 
+
 }
 
 function Check-IsVirtual{
 $machineType = ((get-wmiobject -computer LocalHost win32_computersystem).Manufacturer) | Where {$_ -Match "VM" -or $_ -Match "Virtual" -or $_ -Match "Hyper"}
        if(!$machineType)
         {
-            Write-Host -NoNewline -ForegroundColor Green "[+] Machine Type= "
-            Write-Host -ForegroundColor Yellow  "Physical (Not a virtual machine)"
+           
+            $machinetype = "Physical Machine (Not a virtual one)"
+            return $machineType 
         }
     else{
-            Write-Host -NoNewline -ForegroundColor Green "[+] Machine Type= "
-            Write-Host -ForegroundColor Yellow -NoNewline  "Virtual: " $machineType 
+           
+             $machinetype += " (Its a virtual machine)"
+             return $machineType
         }
-        Write-Host `n
+       
 
 }
 
@@ -152,27 +162,27 @@ Write `n
 
 function Check-ServiceExecutablePermissions{
 
+$Global:ServiceTable = New-Object System.Data.DataTable | Out-Null
+
+$Global:ServiceTable.Columns.Add("ServiceName")
+$Global:ServiceTable.Columns.Add("Executable")
+$Global:ServiceTable.Columns.Add("ExecutablePermissions")
+
+
 Write-Host -BackgroundColor Red "Checking permissions of service executables."
 Write `n
-$services = (Get-WmiObject win32_service |select state,name,pathname,startmode | where {$_.pathname -notmatch "C:\\WINDOWS" -and $_.pathname -match "\\"})
-$i = 0
-if($services){
-    while($services.pathname[$i])
-    {
-    
 
- $path=$services.pathname[$i] 
+
+(Get-WmiObject win32_service |select state,name,pathname,startmode | where {$_.pathname -notmatch "C:\\WINDOWS" -and $_.pathname -match "\\"}) | ForEach-Object{
+ $name = $_.name 
+ $path=$_.pathname
  $path = $path.Replace("`"","")
- $path
-  Check-Permissions -folder $path
-  Write `n
-    
-
-    $i++
-    } 
-
-
+ $perms = Check-Permissions -folder $path
+ $Global:ServiceTable.Rows.Add($name,$path,$perms)
+ 
 }
+
+
 
 }
 
@@ -181,7 +191,11 @@ function Check-GeneralPasswordFolders{
 $isFound = 0
 Write-Host `n
 Write-Host -BackgroundColor Red "Checking Password Folders ..."
-$paths = @("c:\sysprep.inf","c:\sysprep\sysprep.xml", "%WINDIR%\Panther\Unattend\Unattended.xml","%WINDIR%\Panther\Unattended.xml")
+$windir =  $env:windir
+$path_3 = $windir + "\Panther\Unattend\Unattended.xml"
+$path_4 = $windir + "\Panther\Unattended.xml"
+$paths = @("c:\sysprep.inf","c:\sysprep\sysprep.xml", $path_3,$path_4)
+$paths
 $paths | ForEach-Object{
 if(Test-Path $_)
 {
@@ -206,9 +220,13 @@ Write-Host `n
 
 Function Check-ScheduledTaskExecutablePermissions
 {
+$Global:ScheduledTasksTable = New-Object System.Data.Datatable
 
-$tasks_temp = Get-ScheduledTask | Select * | Where {$_.TaskPath -notmatch "\\Microsoft\\Windows\\" -AND $_.TaskPath -notmatch "\\System32\\" -AND $_.Principal.UserID -notmatch "$env:username"} | Format-table -Property state,actions,date,taskname,taskpath,@{name="User"; Expression={$_.Principal.UserId}}
-
+$Global:ScheduledTasksTable.Columns.Add("TaskName") |Out-Null
+$Global:ScheduledTasksTable.Columns.Add("ExecutionInterval") |Out-Null
+$Global:ScheduledTasksTable.Columns.Add("Executable") |Out-Null
+$Global:ScheduledTasksTable.Columns.Add("ExecutablePermissions") | Out-Null
+$Global:ScheduledTasksTable.Columns.Add("Owner")| Out-Null
 
 Get-ScheduledTask | Select * | Where {$_.TaskPath -notmatch "\\Microsoft\\Windows\\"  -AND $_.Principal.UserID -notmatch "$env:username"} |  ForEach-Object{
 
@@ -218,11 +236,11 @@ $interval =  (Get-ScheduledTask -Taskname $name).Triggers.Repetition.Interval
 $executable = (Get-ScheduledTask -Taskname $name).Actions.Execute
 $executable = $executable.Replace("`"","")
 $executablePermissions = Check-Permissions $executable
-$hash = [ordered]@{Name=$name; Interval=$interval; Executable=$executable; ExecutablePermissions=$executablePermissions; taskOwner=$owner}
-$hash
+$Global:ScheduledTasksTable.rows.add($name,$interval,$executable,$executablePermissions,$owner)
+
+
 Write-Host `n
-
-
 }
+$Global:ScheduledTasksTable
 
 }
