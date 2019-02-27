@@ -165,7 +165,7 @@ BUILTIN\Users     ReadAndExecute, Synchronize
 **Check General Password Folders**
 
 
-Check well known folder that contains account passwords.
+Check well known folder that may contains account passwords.
 ```
 PS C:\Users\hyaloid> Check-GeneralPasswordFolders
 
@@ -175,7 +175,7 @@ Checking Password Folders ...
 ```
 **Check Scheduled tasks**
 
-Check executable of scheduled tasks which are not located in \Microsoft\Windows\ and not created by your current user.
+Check executables of scheduled tasks which are not located in \Microsoft\Windows\ and not created by your current user.
 
 ```
 PS C:\Users\hyaloid> Check-ScheduledTaskExecutablePermissions
