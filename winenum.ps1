@@ -1,4 +1,4 @@
-﻿<#
+<#
 Powershell script to detect privilege escalate vectors in windows environments.
 Author: Engin Demirbilek
 Date: */*/*
@@ -165,8 +165,8 @@ function Check-ServiceExecutablePermissions{
 $Global:ServiceTable = New-Object System.Data.DataTable
 
 $Global:ServiceTable.Columns.Add("ServiceName")| Out-Null
-$Global:ServiceTable.Columns.Add("Executable")| Out-Null
 $Global:ServiceTable.Columns.Add("ExecutablePermissions")| Out-Null
+$Global:ServiceTable.Columns.Add("Executable")| Out-Null
 
 
 Write-Host -BackgroundColor Red "Checking permissions of service executables."
@@ -178,11 +178,9 @@ Write `n
  $path=$_.pathname
  $path = $path.Replace("`"","")
  $perms = Check-Permissions -folder $path
- $Global:ServiceTable.Rows.Add($name,$path,$perms)
+ $Global:ServiceTable.Rows.Add($name,$perms,$path)
  
 }
-
-
 
 }
 
